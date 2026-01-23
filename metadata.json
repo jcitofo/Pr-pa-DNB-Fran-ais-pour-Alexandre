@@ -1,0 +1,5 @@
+{
+  "name": "Prépa DNB Français pour Alexandre",
+  "description": "Une application personnalisée pour aider Alexandre à se préparer pour l'épreuve de français du Diplôme National du Brevet (DNB) 2026. L'application génère des sujets d'entraînement, suit les progrès et adapte les nouveaux exercices en fonction des résultats précédents pour une amélioration continue.",
+  "requestFramePermissions": []
+}
