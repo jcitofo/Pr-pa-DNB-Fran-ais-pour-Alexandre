@@ -11,6 +11,7 @@ export interface DNBTestContent {
   id: string;
   text: string;
   imageDescription: string;
+  imageUrl?: string; // URL de l'image générée par l'IA
   analysisQuestions: Question[];
   rewritingTask: {
     sourceText: string;
@@ -24,19 +25,18 @@ export interface DNBTestContent {
   };
 }
 
-export interface SectionCorrection {
-  score: number;
-  maxScore: number;
-  feedback: string;
-  details?: any;
+export interface FileData {
+  data: string; // base64 string
+  mimeType: string;
+  name: string;
 }
 
 export interface Evaluation {
-  totalScore: number; // sur 100
-  analysisScore: number; // sur 40
-  rewritingScore: number; // sur 10
-  dictationScore: number; // sur 10
-  compositionScore: number; // sur 40
+  totalScore: number;
+  analysisScore: number;
+  rewritingScore: number;
+  dictationScore: number;
+  compositionScore: number;
   overallFeedback: string;
   corrections: {
     analysis: { question: string; userAnswer: string; correctAnswer: string; isCorrect: boolean; explanation: string; pointsEarned: number }[];
@@ -51,13 +51,11 @@ export interface TestResult {
   content: DNBTestContent;
   evaluation: Evaluation;
   userAnswers: {
-    analysis: string[];
-    rewriting: string;
-    dictation: string;
-    composition: {
-      type: 'imagination' | 'reflection';
-      text: string;
-    };
+    analysisFiles: FileData[];
+    rewritingFile: FileData | null;
+    dictationFile: FileData | null;
+    compositionFile: FileData | null;
+    compositionType: 'imagination' | 'reflection';
   };
 }
 
