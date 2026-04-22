@@ -1,4 +1,4 @@
-name: Uptime Monitor — Prépa DNB Français
+name: Uptime Monitor — DNB Français + MAÏA Maths
 
 on:
   schedule:
@@ -7,8 +7,11 @@ on:
   workflow_dispatch: # Permet de lancer manuellement aussi
 
 jobs:
-  check-uptime:
-    name: Ping app + API
+  # ─────────────────────────────────────────────
+  # APP 1 : Prépa DNB Français
+  # ─────────────────────────────────────────────
+  check-francais:
+    name: 📚 DNB Français
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -17,39 +20,66 @@ jobs:
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
             "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/")
-          echo "Status page principale: $STATUS"
+          echo "Status: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "❌ Page principale inaccessible (HTTP $STATUS)"
+            echo "❌ DNB Français — page principale inaccessible (HTTP $STATUS)"
             exit 1
           fi
-          echo "✅ Page principale OK"
+          echo "✅ DNB Français — page principale OK"
 
-      - name: Ping — API /api/health
+      - name: Ping — /api/health
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
             "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/api/health")
           echo "Status /api/health: $STATUS"
-          # 404 = route inexistante mais Vercel répond = app en ligne
-          # 200 ou 405 = OK aussi
           if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
-            echo "❌ API inaccessible (HTTP $STATUS)"
+            echo "❌ DNB Français — /api/health ne répond plus (HTTP $STATUS)"
             exit 1
           fi
-          echo "✅ API OK (HTTP $STATUS)"
+          echo "✅ DNB Français — /api/health OK (HTTP $STATUS)"
 
-      - name: Ping — API /api/generate (POST vide = doit répondre, pas timeout)
-        if: always()
+      - name: Ping — /api/generate
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
-            -X POST \
-            -H "Content-Type: application/json" \
+            -X POST -H "Content-Type: application/json" \
             -d '{"textType":"SURPRISE"}' \
             "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/api/generate" || true)
           echo "Status /api/generate: $STATUS"
-          # On vérifie juste que le serverless répond (200 ou 500 selon la clé)
-          # Un timeout (000) ou 502/503 = Vercel down
           if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
-            echo "❌ /api/generate ne répond plus (HTTP $STATUS)"
+            echo "❌ DNB Français — /api/generate ne répond plus (HTTP $STATUS)"
             exit 1
           fi
-          echo "✅ /api/generate répond (HTTP $STATUS)"
+          echo "✅ DNB Français — /api/generate OK (HTTP $STATUS)"
+
+  # ─────────────────────────────────────────────
+  # APP 2 : MAÏA — Maths DNB
+  # ─────────────────────────────────────────────
+  check-maia:
+    name: 🧮 MAÏA Maths
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping — Page principale
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
+            "https://dnb-maths.vercel.app/")
+          echo "Status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ MAÏA — page principale inaccessible (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ MAÏA — page principale OK"
+
+      - name: Ping — /api/chat (doit répondre, pas timeout)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
+            -X POST -H "Content-Type: application/json" \
+            -d '{"messages":[{"role":"user","content":"ping"}],"topic":"test"}' \
+            "https://dnb-maths.vercel.app/api/chat" || true)
+          echo "Status /api/chat: $STATUS"
+          if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
+            echo "❌ MAÏA — /api/chat ne répond plus (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ MAÏA — /api/chat OK (HTTP $STATUS)"
