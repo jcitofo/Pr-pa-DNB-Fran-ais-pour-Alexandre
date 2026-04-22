@@ -67,27 +67,14 @@ export const generateDNBTest = async (history: TestResult[], textType: TextType)
 
     const testContent = JSON.parse(response.text) as DNBTestContent;
 
-    // 2. Génération du document iconographique via gemini-2.0-flash-exp-image-generation
-    try {
-        const imageResponse = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp-image-generation',
-            contents: `Document iconographique pour un examen de français DNB niveau 3ème. ${testContent.imageDescription}. Style : peinture réaliste, photographie d'époque ou gravure selon le contexte. Qualité élevée, format éducatif.`,
-            config: {
-                responseModalities: ['TEXT', 'IMAGE'],
-            }
-        });
-
-        const parts = imageResponse.candidates?.[0]?.content?.parts ?? [];
-        for (const part of parts) {
-            if (part.inlineData?.data) {
-                testContent.imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                break;
-            }
-        }
-    } catch (error) {
-        console.error("Erreur génération image:", error);
-        // L'image est optionnelle — l'examen continue sans elle
-    }
+    // 2. Génération du document iconographique via Pollinations.ai (gratuit, sans clé)
+    // Tronquer la description à 200 chars max pour éviter des URLs trop longues
+    const shortDesc = (testContent.imageDescription || '').slice(0, 200);
+    const pollinationsPrompt = encodeURIComponent(
+        `French school exam educational illustration: ${shortDesc}. Oil painting style, no text.`
+    );
+    const seed = Math.floor(Math.random() * 999999);
+    testContent.imageUrl = `https://image.pollinations.ai/prompt/${pollinationsPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
 
     return testContent;
 };

@@ -59,7 +59,8 @@ const TestSession: React.FC<TestSessionProps> = ({ testHistory, onTestComplete, 
   const [isLoading, setIsLoading] = useState(true);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState<DictationMode | null>(null);
-  
+  const [imgState, setImgState] = useState<'loading' | 'loaded' | 'error'>('loading');
+
   const [userAnswers, setUserAnswers] = useState<any>({
     analysisFiles: [],
     rewritingFile: null,
@@ -194,17 +195,33 @@ const TestSession: React.FC<TestSessionProps> = ({ testHistory, onTestComplete, 
             <div className="bg-slate-50 p-10 rounded-3xl border-2 border-slate-100 mb-10 shadow-inner">
                 <h3 className="text-xs font-black uppercase text-blue-600 mb-6 tracking-[0.2em] text-center italic">Document Iconographique à analyser</h3>
                 {testContent.imageUrl ? (
-                    <div className="mb-6 relative group">
-                        <img src={testContent.imageUrl} className="w-full h-auto rounded-2xl shadow-2xl border-4 border-white transform transition hover:scale-[1.01]" alt="Document iconographique" />
-                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-xs font-bold text-slate-600 shadow-lg border">Document iconographique</div>
+                    <div className="mb-6">
+                        {/* Spinner — visible tant que l'image n'est pas chargée */}
+                        {imgState === 'loading' && (
+                            <div className="w-full h-64 bg-slate-100 rounded-2xl flex flex-col items-center justify-center gap-3 text-slate-400 border-2 border-slate-200">
+                                <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+                                <p className="text-sm font-medium">Génération du document iconographique...</p>
+                                <p className="text-xs text-slate-300">Cela peut prendre 5 à 10 secondes</p>
+                            </div>
+                        )}
+                        {/* Image — cachée jusqu'au chargement */}
+                        <img
+                            src={testContent.imageUrl}
+                            className={`w-full h-auto rounded-2xl shadow-2xl border-4 border-white transform transition hover:scale-[1.01] ${imgState === 'loaded' ? 'block' : 'hidden'}`}
+                            alt="Document iconographique"
+                            onLoad={() => setImgState('loaded')}
+                            onError={() => setImgState('error')}
+                        />
+                        {/* Fallback si Pollinations échoue */}
+                        {imgState === 'error' && (
+                            <div className="w-full h-48 bg-slate-100 rounded-2xl flex flex-col items-center justify-center gap-3 text-slate-400 border-2 border-dashed border-slate-300">
+                                <span className="text-4xl">🖼️</span>
+                                <p className="text-sm font-medium text-slate-500">Document iconographique non disponible</p>
+                                <p className="text-xs text-slate-400">Réponds aux questions à partir du texte du corpus</p>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div className="h-64 bg-slate-100 rounded-2xl flex flex-col items-center justify-center gap-3 text-slate-400 border-2 border-dashed border-slate-200">
-                        <span className="text-4xl">🖼️</span>
-                        <p className="text-sm font-medium">Document iconographique non disponible</p>
-                        <p className="text-xs text-slate-400">Réponds aux questions à partir du texte</p>
-                    </div>
-                )}
+                ) : null}
                 {/* Aide méthodologique — sans décrire l'image */}
                 <div className="mt-5 bg-blue-50 border border-blue-100 rounded-xl px-5 py-3 text-sm text-blue-700">
                     <span className="font-bold">💡 Méthode :</span> Observe attentivement ce document. Pour chaque question, appuie-toi sur ce que tu vois (personnages, cadre, atmosphère, symboles) et sur le texte du corpus.
