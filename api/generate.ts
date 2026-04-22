@@ -89,40 +89,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const testContent = JSON.parse(rawText);
 
-        // Image via Wikimedia Commons — mots-clés ciblés par type d'œuvre
+        // Image via Wikipedia REST API — article de l'œuvre exacte, image principale garantie
         try {
-            // Mots-clés précis par textType pour un document iconographique pertinent
-            const wikimediaKeywords: Record<string, string[]> = {
-                ANTIGONE:       ['Antigone Anouilh théâtre', 'Antigone tragédie grecque', 'masque théâtre grec antique', 'Sophocle Antigone'],
-                ANIMAL_FARM:    ['ferme animaux Orwell', 'soviet propaganda poster animals', 'George Orwell Animal Farm', 'affiche propagande soviétique'],
-                REUNION:        ['Fred Uhlman ami retrouvé', 'amitié Allemagne 1930', 'Stuttgart école lycée 1933', 'Allemagne nazie jeunesse portrait'],
-                CLASSIC:        ['peinture romantique française littérature', 'Delacroix romantisme', 'Victor Hugo illustration romantique'],
-                MODERN:         ['littérature contemporaine française', 'roman moderne portrait', 'illustration livre contemporain'],
-                THEATER:        ['théâtre français scène', 'Molière comédie classique', 'affiche théâtre français'],
-                POETRY:         ['poésie engagée résistance', 'Aragon Éluard résistance', 'affiche poème guerre'],
-                ARGUMENTATIVE:  ['presse française illustration', 'caricature journal satirique', 'liberté presse opinion'],
-                SURPRISE:       ['peinture française littérature', 'illustration romantique classique']
+            // Articles Wikipedia ciblés par textType — retournent toujours l'image principale de l'article
+            const wikiArticles: Record<string, string[]> = {
+                ANTIGONE:      ['Antigone_(Anouilh_play)', 'Antigone', 'Greek_tragedy'],
+                ANIMAL_FARM:   ['Animal_Farm', 'George_Orwell', 'Soviet_propaganda'],
+                REUNION:       ['Reunion_(novel)', 'Fred_Uhlman', 'Nazi_Germany'],
+                CLASSIC:       ['Romanticism', 'Victor_Hugo', 'Gustave_Flaubert'],
+                MODERN:        ['Albert_Camus', 'Simone_de_Beauvoir', 'French_literature'],
+                THEATER:       ['Molière', 'French_theatre', 'Commedia_dell%27arte'],
+                POETRY:        ['French_Resistance', 'Paul_Éluard', 'Louis_Aragon'],
+                ARGUMENTATIVE: ['Freedom_of_the_press', 'Charlie_Hebdo', 'Political_cartoon'],
+                SURPRISE:      ['French_literature', 'Romanticism', 'Victor_Hugo', 'Molière']
             };
 
-            const queries = wikimediaKeywords[textType as string] || wikimediaKeywords['SURPRISE'];
-            const query = queries[Math.floor(Math.random() * queries.length)];
+            const articles = wikiArticles[textType as string] || wikiArticles['SURPRISE'];
+            const article = articles[Math.floor(Math.random() * articles.length)];
 
-            const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&prop=imageinfo&iiprop=url&format=json&gsrlimit=20`;
-            const wikiRes = await fetch(wikiUrl);
+            const wikiRes = await fetch(
+                `https://en.wikipedia.org/api/rest_v1/page/summary/${article}`,
+                { headers: { 'User-Agent': 'DNB-Francais-App/1.0' } }
+            );
             const wikiData = await wikiRes.json();
 
-            const pages = wikiData?.query?.pages;
-            if (pages) {
-                const items = Object.values(pages) as any[];
-                // Filtrer les images valides (JPG/PNG, pas SVG/PDF)
-                const valid = items.filter(p => {
-                    const url = p?.imageinfo?.[0]?.url || '';
-                    return url.match(/\.(jpg|jpeg|png)$/i);
-                });
-                if (valid.length > 0) {
-                    const picked = valid[Math.floor(Math.random() * valid.length)];
-                    testContent.imageUrl = picked.imageinfo[0].url;
-                }
+            // Utiliser l'image originale ou le thumbnail si disponible
+            const imageUrl = wikiData?.originalimage?.source || wikiData?.thumbnail?.source;
+            if (imageUrl && imageUrl.match(/\.(jpg|jpeg|png|webp)/i)) {
+                testContent.imageUrl = imageUrl;
             }
         } catch (_) {
             // Image non disponible — le fallback UI s'affiche
