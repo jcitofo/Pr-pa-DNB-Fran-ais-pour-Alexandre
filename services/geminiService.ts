@@ -55,9 +55,9 @@ export const generateDNBTest = async (history: TestResult[], textType: TextType)
     Catégorie demandée : ${textType}. ${specificContext}
     La partie image doit être une description précise pour un illustrateur.`;
 
-    // 1. Génération du contenu textuel - Using gemini-3-pro-preview for high-quality exam generation
+    // 1. Génération du contenu textuel - Using gemini-2.5-flash for high-quality exam generation
     const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -70,7 +70,7 @@ export const generateDNBTest = async (history: TestResult[], textType: TextType)
     // 2. Génération de l'image d'analyse (Document Iconographique) - Using gemini-2.5-flash-image for default generation
     try {
         const imageResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
+            model: 'gemini-2.0-flash-exp',
             contents: {
                 parts: [{ text: `A historical or artistic document for a French exam analysis. Style: Oil painting, realistic photography or vintage engraving depending on the context. Content: ${testContent.imageDescription}. High quality, educational context.` }]
             },
@@ -163,9 +163,9 @@ export const evaluateDNBAnswers = async (test: DNBTestContent, answers: any): Pr
     if (answers.dictationFile) addFilePart(answers.dictationFile, "Dictée");
     if (answers.compositionFile) addFilePart(answers.compositionFile, `Rédaction (${answers.compositionType})`);
 
-    // Using gemini-3-pro-preview for grading and OCR reasoning
+    // Using gemini-2.5-flash for grading and OCR reasoning
     const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: [{ parts }],
         config: {
             responseMimeType: "application/json",
