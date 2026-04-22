@@ -1,0 +1,55 @@
+name: Uptime Monitor — Prépa DNB Français
+
+on:
+  schedule:
+    # Toutes les 15 minutes, 24h/24 — GitHub envoie un email auto si ça échoue
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Permet de lancer manuellement aussi
+
+jobs:
+  check-uptime:
+    name: Ping app + API
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping — Page principale
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
+            "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/")
+          echo "Status page principale: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Page principale inaccessible (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ Page principale OK"
+
+      - name: Ping — API /api/health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
+            "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/api/health")
+          echo "Status /api/health: $STATUS"
+          # 404 = route inexistante mais Vercel répond = app en ligne
+          # 200 ou 405 = OK aussi
+          if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
+            echo "❌ API inaccessible (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ API OK (HTTP $STATUS)"
+
+      - name: Ping — API /api/generate (POST vide = doit répondre, pas timeout)
+        if: always()
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"textType":"SURPRISE"}' \
+            "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/api/generate" || true)
+          echo "Status /api/generate: $STATUS"
+          # On vérifie juste que le serverless répond (200 ou 500 selon la clé)
+          # Un timeout (000) ou 502/503 = Vercel down
+          if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
+            echo "❌ /api/generate ne répond plus (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ /api/generate répond (HTTP $STATUS)"
