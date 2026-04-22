@@ -67,14 +67,33 @@ export const generateDNBTest = async (history: TestResult[], textType: TextType)
 
     const testContent = JSON.parse(response.text) as DNBTestContent;
 
-    // 2. Génération du document iconographique via Pollinations.ai (gratuit, sans clé)
-    // Tronquer la description à 200 chars max pour éviter des URLs trop longues
-    const shortDesc = (testContent.imageDescription || '').slice(0, 200);
-    const pollinationsPrompt = encodeURIComponent(
-        `French school exam educational illustration: ${shortDesc}. Oil painting style, no text.`
-    );
-    const seed = Math.floor(Math.random() * 999999);
-    testContent.imageUrl = `https://image.pollinations.ai/prompt/${pollinationsPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+    // 2. Document iconographique — Metropolitan Museum of Art (gratuit, sans clé, domaine public)
+    // Extraction de mots-clés depuis la description pour trouver une œuvre pertinente
+    try {
+        const keywords = (testContent.imageDescription || 'painting france literature')
+            .replace(/[^a-zA-ZÀ-ÿ\s]/g, ' ')
+            .split(/\s+/)
+            .filter(w => w.length > 4)
+            .slice(0, 4)
+            .join(' ');
+
+        const searchUrl = `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${encodeURIComponent(keywords)}&hasImages=true&medium=Paintings`;
+        const searchRes = await fetch(searchUrl);
+        const searchData = await searchRes.json();
+
+        if (searchData.objectIDs && searchData.objectIDs.length > 0) {
+            // Prendre un ID aléatoire parmi les 30 premiers résultats
+            const pool = searchData.objectIDs.slice(0, 30);
+            const randomId = pool[Math.floor(Math.random() * pool.length)];
+            const objRes = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${randomId}`);
+            const objData = await objRes.json();
+            if (objData.primaryImage) {
+                testContent.imageUrl = objData.primaryImage;
+            }
+        }
+    } catch (_) {
+        // Rien — l'image reste undefined, le fallback UI s'affiche
+    }
 
     return testContent;
 };
