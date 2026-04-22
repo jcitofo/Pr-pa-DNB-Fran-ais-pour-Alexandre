@@ -92,16 +92,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Image via Wikipedia REST API — tous les articles essayés en séquence jusqu'au premier succès
         // Fallback local SVG si Wikipedia échoue (hébergé sur Vercel, toujours disponible)
         try {
+            // IMPORTANT : portraits d'auteurs EXCLUS — trop risqués (moustaches d'époque, etc.)
+            // On ne cible que les articles sur les œuvres, les genres ou les thèmes
             const wikiArticles: Record<string, string[]> = {
-                ANTIGONE:      ['Antigone_(Anouilh_play)', 'Jean_Anouilh', 'Antigone'],
-                ANIMAL_FARM:   ['Animal_Farm', 'George_Orwell'],
-                REUNION:       ['Reunion_(novel)', 'Fred_Uhlman', 'Weimar_Republic'],
-                CLASSIC:       ['Victor_Hugo', 'Gustave_Flaubert', 'Romanticism'],
-                MODERN:        ['Albert_Camus', 'Simone_de_Beauvoir', 'Existentialism'],
-                THEATER:       ['Moli%C3%A8re', 'French_theatre', 'Commedia_dell%27arte'],
-                POETRY:        ['Paul_%C3%89luard', 'Louis_Aragon', 'French_Resistance'],
+                ANTIGONE:      ['Antigone_(Anouilh_play)', 'Greek_tragedy', 'Theatre_of_ancient_Greece'],
+                ANIMAL_FARM:   ['Animal_Farm', 'Political_satire', 'Dystopian_fiction'],
+                REUNION:       ['Reunion_(novel)', 'Bildungsroman', 'Weimar_Republic'],
+                CLASSIC:       ['Romanticism', 'Realism_(art)', 'French_literature'],
+                MODERN:        ['Absurdism', 'Existentialism', 'French_literature'],
+                THEATER:       ['Commedia_dell%27arte', 'French_theatre', 'Comedy'],
+                POETRY:        ['French_Resistance', 'Surrealism', 'Dadaism'],
                 ARGUMENTATIVE: ['Freedom_of_the_press', 'Political_cartoon', 'Journalism'],
-                SURPRISE:      ['Victor_Hugo', 'Moli%C3%A8re', 'Albert_Camus', 'French_literature']
+                SURPRISE:      ['French_literature', 'Romanticism', 'Absurdism', 'Greek_tragedy']
             };
 
             // Fallbacks SVG locaux (hébergés sur Vercel) — jamais de page blanche
