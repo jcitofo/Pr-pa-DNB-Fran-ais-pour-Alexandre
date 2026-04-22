@@ -89,37 +89,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const testContent = JSON.parse(rawText);
 
-        // Image via Wikipedia REST API — article de l'œuvre exacte, image principale garantie
+        // Image via Wikipedia REST API — tous les articles essayés en séquence jusqu'au premier succès
+        // Fallback local SVG si Wikipedia échoue (hébergé sur Vercel, toujours disponible)
         try {
-            // Articles Wikipedia ciblés par textType — retournent toujours l'image principale de l'article
             const wikiArticles: Record<string, string[]> = {
-                ANTIGONE:      ['Antigone_(Anouilh_play)', 'Antigone', 'Greek_tragedy'],
-                ANIMAL_FARM:   ['Animal_Farm', 'George_Orwell', 'Soviet_propaganda'],
-                REUNION:       ['Reunion_(novel)', 'Fred_Uhlman', 'Nazi_Germany'],
-                CLASSIC:       ['Romanticism', 'Victor_Hugo', 'Gustave_Flaubert'],
-                MODERN:        ['Albert_Camus', 'Simone_de_Beauvoir', 'French_literature'],
-                THEATER:       ['Molière', 'French_theatre', 'Commedia_dell%27arte'],
-                POETRY:        ['French_Resistance', 'Paul_Éluard', 'Louis_Aragon'],
-                ARGUMENTATIVE: ['Freedom_of_the_press', 'Charlie_Hebdo', 'Political_cartoon'],
-                SURPRISE:      ['French_literature', 'Romanticism', 'Victor_Hugo', 'Molière']
+                ANTIGONE:      ['Antigone_(Anouilh_play)', 'Jean_Anouilh', 'Antigone'],
+                ANIMAL_FARM:   ['Animal_Farm', 'George_Orwell'],
+                REUNION:       ['Reunion_(novel)', 'Fred_Uhlman', 'Weimar_Republic'],
+                CLASSIC:       ['Victor_Hugo', 'Gustave_Flaubert', 'Romanticism'],
+                MODERN:        ['Albert_Camus', 'Simone_de_Beauvoir', 'Existentialism'],
+                THEATER:       ['Moli%C3%A8re', 'French_theatre', 'Commedia_dell%27arte'],
+                POETRY:        ['Paul_%C3%89luard', 'Louis_Aragon', 'French_Resistance'],
+                ARGUMENTATIVE: ['Freedom_of_the_press', 'Political_cartoon', 'Journalism'],
+                SURPRISE:      ['Victor_Hugo', 'Moli%C3%A8re', 'Albert_Camus', 'French_literature']
+            };
+
+            // Fallbacks SVG locaux (hébergés sur Vercel) — jamais de page blanche
+            const localFallbacks: Record<string, string> = {
+                ANTIGONE:      '/fallback/antigone.svg',
+                ANIMAL_FARM:   '/fallback/animal-farm.svg',
+                REUNION:       '/fallback/reunion.svg',
+                CLASSIC:       '/fallback/classic.svg',
+                MODERN:        '/fallback/modern.svg',
+                THEATER:       '/fallback/theater.svg',
+                POETRY:        '/fallback/poetry.svg',
+                ARGUMENTATIVE: '/fallback/argumentative.svg',
+                SURPRISE:      '/fallback/classic.svg'
             };
 
             const articles = wikiArticles[textType as string] || wikiArticles['SURPRISE'];
-            const article = articles[Math.floor(Math.random() * articles.length)];
+            let foundImage = false;
 
-            const wikiRes = await fetch(
-                `https://en.wikipedia.org/api/rest_v1/page/summary/${article}`,
-                { headers: { 'User-Agent': 'DNB-Francais-App/1.0' } }
-            );
-            const wikiData = await wikiRes.json();
+            // Essayer chaque article en séquence — s'arrêter au premier qui a une image
+            for (const article of articles) {
+                try {
+                    const wikiRes = await fetch(
+                        `https://en.wikipedia.org/api/rest_v1/page/summary/${article}`,
+                        { headers: { 'User-Agent': 'DNB-Francais-App/1.0 (alexandre@dnb2026.fr)' } }
+                    );
+                    if (!wikiRes.ok) continue;
+                    const wikiData = await wikiRes.json();
+                    const imageUrl = wikiData?.originalimage?.source || wikiData?.thumbnail?.source;
+                    if (imageUrl && imageUrl.match(/\.(jpg|jpeg|png|webp)/i)) {
+                        testContent.imageUrl = imageUrl;
+                        foundImage = true;
+                        break;
+                    }
+                } catch (_) {
+                    // Cet article échoue — essayer le suivant
+                }
+            }
 
-            // Utiliser l'image originale ou le thumbnail si disponible
-            const imageUrl = wikiData?.originalimage?.source || wikiData?.thumbnail?.source;
-            if (imageUrl && imageUrl.match(/\.(jpg|jpeg|png|webp)/i)) {
-                testContent.imageUrl = imageUrl;
+            // Fallback local si Wikipedia n'a rien renvoyé
+            if (!foundImage) {
+                testContent.imageUrl = localFallbacks[textType as string] || '/fallback/classic.svg';
             }
         } catch (_) {
-            // Image non disponible — le fallback UI s'affiche
+            // Erreur globale — fallback local
+            testContent.imageUrl = '/fallback/classic.svg';
         }
 
         return res.status(200).json(testContent);

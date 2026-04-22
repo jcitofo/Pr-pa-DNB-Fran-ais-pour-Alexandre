@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c2833"/>
+      <stop offset="100%" style="stop-color:#2e4057"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4a843"/>
+      <stop offset="100%" style="stop-color:#c8902a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <!-- Fenêtre de wagon de train -->
+  <rect x="150" y="90" width="220" height="310" rx="20" ry="20" fill="#2e4057" stroke="#5d7084" stroke-width="4"/>
+  <rect x="165" y="105" width="190" height="280" rx="12" ry="12" fill="#1a2635"/>
+  <!-- Paysage défilant dans la fenêtre -->
+  <clipPath id="win1">
+    <rect x="165" y="105" width="190" height="280" rx="12" ry="12"/>
+  </clipPath>
+  <g clip-path="url(#win1)">
+    <rect x="165" y="105" width="190" height="280" fill="#0d1b2a"/>
+    <rect x="165" y="310" width="190" height="75" fill="#1a3a1a"/>
+    <line x1="165" y1="312" x2="355" y2="312" stroke="#2d5a2d" stroke-width="3"/>
+    <!-- Silhouette arbres -->
+    <rect x="180" y="255" width="12" height="60" fill="#0a2a0a"/>
+    <ellipse cx="186" cy="250" rx="20" ry="28" fill="#123a12"/>
+    <rect x="240" y="270" width="10" height="45" fill="#0a2a0a"/>
+    <ellipse cx="245" cy="265" rx="16" ry="22" fill="#123a12"/>
+    <rect x="300" y="260" width="11" height="55" fill="#0a2a0a"/>
+    <ellipse cx="306" cy="255" rx="18" ry="24" fill="#123a12"/>
+    <!-- Lune -->
+    <circle cx="290" cy="145" r="28" fill="#e8d5a3" opacity="0.8"/>
+    <circle cx="302" cy="138" r="22" fill="#1a2635"/>
+  </g>
+  <!-- Deuxième fenêtre -->
+  <rect x="430" y="90" width="220" height="310" rx="20" ry="20" fill="#2e4057" stroke="#5d7084" stroke-width="4"/>
+  <rect x="445" y="105" width="190" height="280" rx="12" ry="12" fill="#1a2635"/>
+  <clipPath id="win2">
+    <rect x="445" y="105" width="190" height="280" rx="12" ry="12"/>
+  </clipPath>
+  <g clip-path="url(#win2)">
+    <rect x="445" y="105" width="190" height="280" fill="#0d1b2a"/>
+    <rect x="445" y="310" width="190" height="75" fill="#1a3a1a"/>
+    <!-- Silhouettes de deux hommes face à face -->
+    <!-- Homme gauche (jeune) -->
+    <circle cx="510" cy="195" r="25" fill="#c8a882"/>
+    <rect x="492" y="218" width="36" height="75" rx="8" fill="#2c3e6b"/>
+    <!-- Homme droit (plus vieux) -->
+    <circle cx="570" cy="195" r="25" fill="#c8a882"/>
+    <rect x="552" y="218" width="36" height="75" rx="8" fill="#5a3e28"/>
+    <!-- Ligne de connexion / regard -->
+    <line x1="535" y1="195" x2="545" y2="195" stroke="#d4a843" stroke-width="2" stroke-dasharray="3,3"/>
+  </g>
+  <!-- Rails du train en bas -->
+  <rect x="0" y="430" width="800" height="8" fill="#4a4a4a" rx="4"/>
+  <rect x="0" y="455" width="800" height="8" fill="#4a4a4a" rx="4"/>
+  <rect x="50" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="130" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="210" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="290" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="370" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="450" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="530" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="610" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <rect x="690" y="428" width="15" height="37" fill="#5a5a5a"/>
+  <!-- Titre -->
+  <text x="400" y="58" font-family="Georgia, serif" font-size="36" fill="url(#warm)" text-anchor="middle" font-weight="bold">UN AMI RETROUVÉ</text>
+  <text x="400" y="82" font-family="Georgia, serif" font-size="16" fill="#8fa8c8" text-anchor="middle">Fred Uhlman · 1971</text>
+</svg>

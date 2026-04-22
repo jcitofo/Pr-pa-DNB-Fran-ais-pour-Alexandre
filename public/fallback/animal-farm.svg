@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50"/>
+      <stop offset="60%" style="stop-color:#c0392b"/>
+      <stop offset="100%" style="stop-color:#e74c3c"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60"/>
+      <stop offset="100%" style="stop-color:#1e8449"/>
+    </linearGradient>
+  </defs>
+  <!-- Ciel rouge -->
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <!-- Prairie -->
+  <rect x="0" y="340" width="800" height="160" fill="url(#ground)"/>
+  <!-- Grange -->
+  <rect x="280" y="180" width="240" height="180" fill="#8b4513"/>
+  <polygon points="260,180 400,80 540,180" fill="#922b21"/>
+  <!-- Porte grange -->
+  <rect x="360" y="280" width="80" height="80" fill="#5d2e00"/>
+  <circle cx="430" cy="320" r="5" fill="#c9a227"/>
+  <!-- Fenêtre -->
+  <rect x="295" y="210" width="50" height="50" fill="#f0e68c" opacity="0.7"/>
+  <line x1="320" y1="210" x2="320" y2="260" stroke="#5d2e00" stroke-width="3"/>
+  <line x1="295" y1="235" x2="345" y2="235" stroke="#5d2e00" stroke-width="3"/>
+  <!-- Drapeau rouge avec sabot et corne -->
+  <rect x="395" y="80" width="4" height="60" fill="#5d2e00"/>
+  <rect x="399" y="80" width="60" height="40" fill="#c0392b"/>
+  <!-- Sabot simplifié sur drapeau -->
+  <ellipse cx="429" cy="100" rx="18" ry="14" fill="white" opacity="0.9"/>
+  <!-- Silhouettes animaux -->
+  <!-- Cochon gauche -->
+  <ellipse cx="160" cy="380" rx="55" ry="38" fill="#f4a7a7"/>
+  <ellipse cx="200" cy="365" rx="30" ry="22" fill="#f4a7a7"/>
+  <circle cx="215" cy="358" r="12" fill="#f4a7a7"/>
+  <circle cx="220" cy="355" r="5" fill="#d98080"/>
+  <ellipse cx="200" cy="352" r="4" fill="#c97070"/>
+  <rect x="120" y="408" width="14" height="22" fill="#f4a7a7"/>
+  <rect x="150" y="410" width="14" height="22" fill="#f4a7a7"/>
+  <rect x="178" y="410" width="14" height="22" fill="#f4a7a7"/>
+  <!-- Cochon droit -->
+  <ellipse cx="640" cy="375" rx="55" ry="38" fill="#f4a7a7"/>
+  <ellipse cx="600" cy="360" rx="30" ry="22" fill="#f4a7a7"/>
+  <circle cx="585" cy="353" r="12" fill="#f4a7a7"/>
+  <circle cx="580" cy="350" r="5" fill="#d98080"/>
+  <rect x="610" y="405" width="14" height="22" fill="#f4a7a7"/>
+  <rect x="640" y="407" width="14" height="22" fill="#f4a7a7"/>
+  <rect x="668" y="405" width="14" height="22" fill="#f4a7a7"/>
+  <!-- Texte -->
+  <text x="400" y="462" font-family="Georgia, serif" font-size="34" fill="white" text-anchor="middle" font-weight="bold">LA FERME DES ANIMAUX</text>
+  <text x="400" y="488" font-family="Georgia, serif" font-size="17" fill="#f0e68c" text-anchor="middle">George Orwell · 1945</text>
+</svg>
