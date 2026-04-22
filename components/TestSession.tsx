@@ -79,7 +79,9 @@ const TestSession: React.FC<TestSessionProps> = ({ testHistory, onTestComplete, 
         const content = await generateDNBTest(testHistory, selectedTextType);
         setTestContent(content);
       } catch (err) {
-        alert("Erreur de génération.");
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("Erreur generateDNBTest:", err);
+        alert(`Erreur de génération:\n${msg.slice(0, 300)}`);
         onBack();
       } finally {
         setIsLoading(false);

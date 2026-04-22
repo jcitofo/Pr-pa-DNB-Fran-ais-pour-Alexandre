@@ -2,7 +2,9 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import type { DNBTestContent, TestResult, Evaluation, TextType, FileData } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const API_KEY = process.env.API_KEY;
+console.log("[geminiService] API_KEY présente:", API_KEY ? `oui (${API_KEY.slice(0,8)}...)` : "NON — UNDEFINED");
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const testContentSchema = {
     type: Type.OBJECT,
