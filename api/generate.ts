@@ -89,27 +89,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const testContent = JSON.parse(rawText);
 
-        // Image via Met Museum (serverless — pas de CORS)
+        // Image via Wikimedia Commons — mots-clés ciblés par type d'œuvre
         try {
-            const keywords = (testContent.imageDescription || 'painting france literature')
-                .replace(/[^a-zA-ZÀ-ÿ\s]/g, ' ')
-                .split(/\s+/)
-                .filter((w: string) => w.length > 4)
-                .slice(0, 4)
-                .join(' ');
+            // Mots-clés précis par textType pour un document iconographique pertinent
+            const wikimediaKeywords: Record<string, string[]> = {
+                ANTIGONE:       ['Antigone Anouilh théâtre', 'Antigone tragédie grecque', 'masque théâtre grec antique', 'Sophocle Antigone'],
+                ANIMAL_FARM:    ['ferme animaux Orwell', 'soviet propaganda poster animals', 'George Orwell Animal Farm', 'affiche propagande soviétique'],
+                REUNION:        ['Fred Uhlman ami retrouvé', 'amitié Allemagne 1930', 'Stuttgart école lycée 1933', 'Allemagne nazie jeunesse portrait'],
+                CLASSIC:        ['peinture romantique française littérature', 'Delacroix romantisme', 'Victor Hugo illustration romantique'],
+                MODERN:         ['littérature contemporaine française', 'roman moderne portrait', 'illustration livre contemporain'],
+                THEATER:        ['théâtre français scène', 'Molière comédie classique', 'affiche théâtre français'],
+                POETRY:         ['poésie engagée résistance', 'Aragon Éluard résistance', 'affiche poème guerre'],
+                ARGUMENTATIVE:  ['presse française illustration', 'caricature journal satirique', 'liberté presse opinion'],
+                SURPRISE:       ['peinture française littérature', 'illustration romantique classique']
+            };
 
-            const searchRes = await fetch(
-                `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${encodeURIComponent(keywords)}&hasImages=true&medium=Paintings`
-            );
-            const searchData = await searchRes.json();
+            const queries = wikimediaKeywords[textType as string] || wikimediaKeywords['SURPRISE'];
+            const query = queries[Math.floor(Math.random() * queries.length)];
 
-            if (searchData.objectIDs?.length > 0) {
-                const pool = searchData.objectIDs.slice(0, 30);
-                const randomId = pool[Math.floor(Math.random() * pool.length)];
-                const objRes = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${randomId}`);
-                const objData = await objRes.json();
-                if (objData.primaryImage) {
-                    testContent.imageUrl = objData.primaryImage;
+            const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&prop=imageinfo&iiprop=url&format=json&gsrlimit=20`;
+            const wikiRes = await fetch(wikiUrl);
+            const wikiData = await wikiRes.json();
+
+            const pages = wikiData?.query?.pages;
+            if (pages) {
+                const items = Object.values(pages) as any[];
+                // Filtrer les images valides (JPG/PNG, pas SVG/PDF)
+                const valid = items.filter(p => {
+                    const url = p?.imageinfo?.[0]?.url || '';
+                    return url.match(/\.(jpg|jpeg|png)$/i);
+                });
+                if (valid.length > 0) {
+                    const picked = valid[Math.floor(Math.random() * valid.length)];
+                    testContent.imageUrl = picked.imageinfo[0].url;
                 }
             }
         } catch (_) {
