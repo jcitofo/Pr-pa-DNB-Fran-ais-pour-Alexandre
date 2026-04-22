@@ -75,6 +75,11 @@ const PaywallModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 // ─────────────────────────────────────────────
+// BYPASS ADMIN — ?bypass=admin désactive le paywall
+// ─────────────────────────────────────────────
+const IS_BYPASS = new URLSearchParams(window.location.search).get('bypass') === 'admin';
+
+// ─────────────────────────────────────────────
 // APP
 // ─────────────────────────────────────────────
 const App: React.FC = () => {
@@ -112,15 +117,17 @@ const App: React.FC = () => {
   };
 
   const handleStartTest = (textType: TextType) => {
-    const currentWeek = getMonday(new Date());
-    const count = examPaywall.weekStart === currentWeek ? examPaywall.examCount : 0;
-    if (count >= FREE_EXAM_LIMIT) {
-      setExamPaywall(prev => ({ ...prev, showModal: true }));
-      return;
+    if (!IS_BYPASS) {
+      const currentWeek = getMonday(new Date());
+      const count = examPaywall.weekStart === currentWeek ? examPaywall.examCount : 0;
+      if (count >= FREE_EXAM_LIMIT) {
+        setExamPaywall(prev => ({ ...prev, showModal: true }));
+        return;
+      }
+      const newCount = count + 1;
+      saveExamPaywall(newCount, currentWeek);
+      setExamPaywall({ examCount: newCount, weekStart: currentWeek, showModal: false });
     }
-    const newCount = count + 1;
-    saveExamPaywall(newCount, currentWeek);
-    setExamPaywall({ examCount: newCount, weekStart: currentWeek, showModal: false });
     setSelectedTextType(textType);
     setAppState('IN_TEST');
   };
@@ -188,7 +195,7 @@ const App: React.FC = () => {
     <main className="min-h-screen bg-white font-sans w-full">
       <div className="w-full">
         {renderContent()}
-        {examPaywall.showModal && (
+        {!IS_BYPASS && examPaywall.showModal && (
           <PaywallModal onClose={() => setExamPaywall(prev => ({ ...prev, showModal: false }))} />
         )}
       </div>
