@@ -196,12 +196,19 @@ const TestSession: React.FC<TestSessionProps> = ({ testHistory, onTestComplete, 
                 {testContent.imageUrl ? (
                     <div className="mb-6 relative group">
                         <img src={testContent.imageUrl} className="w-full h-auto rounded-2xl shadow-2xl border-4 border-white transform transition hover:scale-[1.01]" alt="Document iconographique" />
-                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-xs font-bold text-slate-600 shadow-lg border">Visualisation IA</div>
+                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-xs font-bold text-slate-600 shadow-lg border">Document iconographique</div>
                     </div>
                 ) : (
-                    <div className="h-64 bg-slate-200 animate-pulse rounded-2xl flex items-center justify-center text-slate-400">Génération de l'image...</div>
+                    <div className="h-64 bg-slate-100 rounded-2xl flex flex-col items-center justify-center gap-3 text-slate-400 border-2 border-dashed border-slate-200">
+                        <span className="text-4xl">🖼️</span>
+                        <p className="text-sm font-medium">Document iconographique non disponible</p>
+                        <p className="text-xs text-slate-400">Réponds aux questions à partir du texte</p>
+                    </div>
                 )}
-                <p className="text-slate-600 text-xl italic leading-relaxed text-center px-6">"{testContent.imageDescription}"</p>
+                {/* Aide méthodologique — sans décrire l'image */}
+                <div className="mt-5 bg-blue-50 border border-blue-100 rounded-xl px-5 py-3 text-sm text-blue-700">
+                    <span className="font-bold">💡 Méthode :</span> Observe attentivement ce document. Pour chaque question, appuie-toi sur ce que tu vois (personnages, cadre, atmosphère, symboles) et sur le texte du corpus.
+                </div>
             </div>
 
             {currentStep === 'REECRITURE' && (

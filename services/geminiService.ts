@@ -67,27 +67,26 @@ export const generateDNBTest = async (history: TestResult[], textType: TextType)
 
     const testContent = JSON.parse(response.text) as DNBTestContent;
 
-    // 2. Génération de l'image d'analyse (Document Iconographique) - Using gemini-2.5-flash-image for default generation
+    // 2. Génération du document iconographique via gemini-2.0-flash-exp-image-generation
     try {
         const imageResponse = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
-            contents: {
-                parts: [{ text: `A historical or artistic document for a French exam analysis. Style: Oil painting, realistic photography or vintage engraving depending on the context. Content: ${testContent.imageDescription}. High quality, educational context.` }]
-            },
+            model: 'gemini-2.0-flash-exp-image-generation',
+            contents: `Document iconographique pour un examen de français DNB niveau 3ème. ${testContent.imageDescription}. Style : peinture réaliste, photographie d'époque ou gravure selon le contexte. Qualité élevée, format éducatif.`,
             config: {
-                imageConfig: { aspectRatio: "4:3" }
+                responseModalities: ['TEXT', 'IMAGE'],
             }
         });
 
-        for (const part of imageResponse.candidates[0].content.parts) {
-            // Find the image part in the response
-            if (part.inlineData) {
+        const parts = imageResponse.candidates?.[0]?.content?.parts ?? [];
+        for (const part of parts) {
+            if (part.inlineData?.data) {
                 testContent.imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
                 break;
             }
         }
     } catch (error) {
         console.error("Erreur génération image:", error);
+        // L'image est optionnelle — l'examen continue sans elle
     }
 
     return testContent;
