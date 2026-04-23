@@ -38,18 +38,8 @@ jobs:
           fi
           echo "✅ DNB Français — /api/health OK (HTTP $STATUS)"
 
-      - name: Ping — /api/generate
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 \
-            -X POST -H "Content-Type: application/json" \
-            -d '{"textType":"SURPRISE"}' \
-            "https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/api/generate" || true)
-          echo "Status /api/generate: $STATUS"
-          if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
-            echo "❌ DNB Français — /api/generate ne répond plus (HTTP $STATUS)"
-            exit 1
-          fi
-          echo "✅ DNB Français — /api/generate OK (HTTP $STATUS)"
+      # /api/generate retiré du monitoring — appel Gemini+Wikipedia trop lent (>20s)
+      # et coûteux (96 appels/jour). /api/health suffit pour valider que le serveur répond.
 
   # ─────────────────────────────────────────────
   # APP 2 : MAÏA — Maths DNB
