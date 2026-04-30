@@ -63,7 +63,7 @@ const PaywallModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
         style={{backgroundColor:'#1a6b3c'}}
         onMouseOver={e => (e.currentTarget.style.backgroundColor='#155a32')}
         onMouseOut={e => (e.currentTarget.style.backgroundColor='#1a6b3c')}
-        onClick={() => window.open('https://pr-pa-dnb-fran-ais-pour-alexandre.vercel.app/#pricing', '_blank')}
+        onClick={() => window.open('https://maia-dnb.lemonsqueezy.com/checkout/buy/1ea88b35-b24c-4798-beaf-d85eb200084d', '_blank')}
       >
         🚀 Passer au Premium — 9,99€/mois
       </button>
